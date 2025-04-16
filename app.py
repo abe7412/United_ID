@@ -4,14 +4,15 @@ import pdfplumber
 import re
 import tempfile
 import os
+import zipfile
 
-st.set_page_config(page_title="UNITED ID APPLICATION" , layout="centered")
+st.set_page_config(page_title="Muqeem Form Filler", layout="centered")
 
-st.title("UNITED ID APPLICATION")
-st.markdown("Upload a **Muqeem PDF** and a **form PDF** with fillable fields.")
+st.title("📝 Muqeem PDF Form Filler")
+st.markdown("Upload **Muqeem PDFs** and a **form PDF** with fillable fields. The app will generate one filled form per Muqeem.")
 
 # ---------- Upload PDFs ----------
-muqeem_file = st.file_uploader("📄 Upload Muqeem PDF", type="pdf")
+muqeem_files = st.file_uploader("📄 Upload Muqeem PDFs", type="pdf", accept_multiple_files=True)
 form_file = st.file_uploader("📋 Upload Form PDF (fillable)", type="pdf")
 
 # ---------- Helper: Extract Muqeem Data ----------
@@ -20,7 +21,6 @@ def extract_muqeem_data(pdf_path):
         text = pdf.pages[0].extract_text()
 
     data = {}
-
     name_match = re.search(r"Name\s+(.*?)\s+Translated Name", text)
     data["Name"] = name_match.group(1).strip() if name_match else "Not found"
 
@@ -46,21 +46,25 @@ def extract_muqeem_data(pdf_path):
     return data
 
 # ---------- Main Process ----------
-if muqeem_file and form_file:
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as muqeem_temp:
-        muqeem_temp.write(muqeem_file.read())
-        muqeem_pdf_path = muqeem_temp.name
-
+if muqeem_files and form_file:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as form_temp:
         form_temp.write(form_file.read())
         form_pdf_path = form_temp.name
 
-    data = extract_muqeem_data(muqeem_pdf_path)
+    filled_files = []
 
-    # Validate required fields
-    if not data.get("Name") or not data.get("Iqama"):
-        st.error("❌ Required fields missing from Muqeem data.")
-    else:
+    for idx, muqeem_file in enumerate(muqeem_files):
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as muqeem_temp:
+            muqeem_temp.write(muqeem_file.read())
+            muqeem_pdf_path = muqeem_temp.name
+
+        data = extract_muqeem_data(muqeem_pdf_path)
+
+        if not data.get("Name") or not data.get("Iqama"):
+            st.warning(f"⚠️ Required fields missing in Muqeem file {muqeem_file.name}. Skipped.")
+            continue
+
+        # Dummy fixed fields
         start_day, start_month, start_year = "11", "11", "1111"
         end_day, end_month, end_year = "11", "11", "1111"
         po = "48992"
@@ -82,7 +86,6 @@ if muqeem_file and form_file:
             "Text1": po
         }
 
-        # Fill PDF
         doc = fitz.open(form_pdf_path)
         for page in doc:
             widgets = page.widgets()
@@ -93,13 +96,20 @@ if muqeem_file and form_file:
                             widget.field_value = fields_to_fill[widget.field_name]
                             widget.update()
                     except Exception as e:
-                        st.warning(f"⚠️ Could not fill '{widget.field_name}': {e}")
+                        st.warning(f"Could not fill '{widget.field_name}' for {muqeem_file.name}: {e}")
 
-        # Save to temp file
-        filled_pdf_path = os.path.join(tempfile.gettempdir(), "filled_form.pdf")
-        doc.save(filled_pdf_path)
+        filled_path = os.path.join(tempfile.gettempdir(), f"filled_{idx}_{data['Iqama']}.pdf")
+        doc.save(filled_path)
         doc.close()
+        filled_files.append(filled_path)
 
-        st.success("✅ PDF filled successfully.")
-        with open(filled_pdf_path, "rb") as f:
-            st.download_button("⬇️ Download Filled PDF", f, file_name="filled_form.pdf", mime="application/pdf")
+    if filled_files:
+        # ZIP all PDFs
+        zip_path = os.path.join(tempfile.gettempdir(), "filled_forms.zip")
+        with zipfile.ZipFile(zip_path, "w") as zipf:
+            for path in filled_files:
+                zipf.write(path, arcname=os.path.basename(path))
+
+        st.success("✅ All Muqeem PDFs processed and forms filled.")
+        with open(zip_path, "rb") as zf:
+            st.download_button("⬇️ Download All Filled PDFs (ZIP)", zf, file_name="filled_forms.zip", mime="application/zip")
