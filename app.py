@@ -11,6 +11,23 @@ st.set_page_config(page_title="Muqeem Form Filler", layout="centered")
 st.title("UNITED ID APPLICATION- Muqeem")
 st.markdown("Upload **Muqeem PDFs** and a **form PDF** with fillable fields. The app will generate one filled form per Muqeem.")
 
+st.subheader("Operator Input")
+
+po = st.text_input("PO Number")
+
+start_date = st.date_input("Contract Start Date")
+end_date = st.date_input("Contract End Date")
+
+# Extract day/month/year for PDF fields
+start_day = f"{start_date.day:02d}"
+start_month = f"{start_date.month:02d}"
+start_year = str(start_date.year)
+
+end_day = f"{end_date.day:02d}"
+end_month = f"{end_date.month:02d}"
+end_year = str(end_date.year)
+
+
 # ---------- Upload PDFs ----------
 muqeem_files = st.file_uploader("📄 Upload Muqeem PDFs", type="pdf", accept_multiple_files=True)
 form_file = st.file_uploader("📋 Upload Form PDF (fillable)", type="pdf")
@@ -66,22 +83,6 @@ if muqeem_files and form_file:
 
         # Dummy fixed fields
         # ----------- Operator Input -----------
-st.subheader("Operator Input")
-
-po = st.text_input("PO Number")
-
-start_date = st.date_input("Contract Start Date")
-end_date = st.date_input("Contract End Date")
-
-# Extract day/month/year for PDF fields
-start_day = f"{start_date.day:02d}"
-start_month = f"{start_date.month:02d}"
-start_year = str(start_date.year)
-
-end_day = f"{end_date.day:02d}"
-end_month = f"{end_date.month:02d}"
-end_year = str(end_date.year)
-
 
         fields_to_fill = {
             "fill_5": data["Name"],
