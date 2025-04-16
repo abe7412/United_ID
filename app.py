@@ -8,7 +8,7 @@ import zipfile
 
 st.set_page_config(page_title="Muqeem Form Filler", layout="centered")
 
-st.title("📝 Muqeem PDF Form Filler")
+st.title("UNITED ID APPLICATION- Muqeem")
 st.markdown("Upload **Muqeem PDFs** and a **form PDF** with fillable fields. The app will generate one filled form per Muqeem.")
 
 # ---------- Upload PDFs ----------
