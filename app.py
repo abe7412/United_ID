@@ -5,7 +5,7 @@ import re
 import tempfile
 import os
 
-st.set_page_config(page_title="UNITED ID APPLICATION", layout="centered")
+st.set_page_config(page_title="UNITED ID APPLICATION" , layout="centered")
 
 st.title("📝 Muqeem PDF Form Filler")
 st.markdown("Upload a **Muqeem PDF** and a **form PDF** with fillable fields.")
