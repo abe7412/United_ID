@@ -7,7 +7,7 @@ import os
 
 st.set_page_config(page_title="UNITED ID APPLICATION" , layout="centered")
 
-st.title("📝 Muqeem PDF Form Filler")
+st.title("UNITED ID APPLICATION")
 st.markdown("Upload a **Muqeem PDF** and a **form PDF** with fillable fields.")
 
 # ---------- Upload PDFs ----------
