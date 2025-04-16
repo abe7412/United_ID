@@ -65,9 +65,23 @@ if muqeem_files and form_file:
             continue
 
         # Dummy fixed fields
-        start_day, start_month, start_year = "11", "11", "1111"
-        end_day, end_month, end_year = "11", "11", "1111"
-        po = "48992"
+        # ----------- Operator Input -----------
+st.subheader("Operator Input")
+
+po = st.text_input("PO Number")
+
+start_date = st.date_input("Contract Start Date")
+end_date = st.date_input("Contract End Date")
+
+# Extract day/month/year for PDF fields
+start_day = f"{start_date.day:02d}"
+start_month = f"{start_date.month:02d}"
+start_year = str(start_date.year)
+
+end_day = f"{end_date.day:02d}"
+end_month = f"{end_date.month:02d}"
+end_year = str(end_date.year)
+
 
         fields_to_fill = {
             "fill_5": data["Name"],
