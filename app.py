@@ -38,6 +38,10 @@ def extract_muqeem_data(pdf_path):
         text = pdf.pages[0].extract_text()
 
     data = {}
+    # Extract Occupation
+    occupation_match = re.search(r"Occupation\s+([A-Za-z\s\-]+)", text)
+    data["Occupation"] = occupation_match.group(1).strip() if occupation_match else "Not found"
+
     name_match_1 = re.search(r"Translated Name\s+([A-Z\s\-']+?)\s+(Birth Date|Nationality|Iqama|Passport|Gender|Issue Date)", text)
     name_match_2 = re.search(r"Name\s+([A-Z\s\-']+?)\s+(Birth Date|Nationality|Iqama|Passport|Gender|Issue Date)", text)
     data["Name"] = name_match_1.group(1).strip() if name_match_1 else (
@@ -95,7 +99,7 @@ if muqeem_files and form_file:
         fields_to_fill = {
             "fill_5": data["Name"],
             "fill_6": data["Nationality"],
-            "fill_7": data["Iqama"],
+            "fill_7": data["Occupation"],
             "fill_8": data["Passport"],
             "fill_9": f"{data['IssueDate']} - {data['IssueLocation']}",
             "fill_10": data["BirthDate"],
