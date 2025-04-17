@@ -39,8 +39,10 @@ def extract_muqeem_data(pdf_path):
 
     data = {}
     # Extract Occupation
-    occupation_match = re.search(r"Occupation\s+([A-Za-z\s\-]+)", text)
+    # Cleaner occupation extraction — stop at known next label
+    occupation_match = re.search(r"Occupation\s+([A-Za-z\s\-]+?)(\s+Status|\s+Visa|\s+In Kingdom|\s+Entry|\s+Exit)", text)
     data["Occupation"] = occupation_match.group(1).strip() if occupation_match else "Not found"
+
 
     name_match_1 = re.search(r"Translated Name\s+([A-Z\s\-']+?)\s+(Birth Date|Nationality|Iqama|Passport|Gender|Issue Date)", text)
     name_match_2 = re.search(r"Name\s+([A-Z\s\-']+?)\s+(Birth Date|Nationality|Iqama|Passport|Gender|Issue Date)", text)
