@@ -60,6 +60,12 @@ def extract_muqeem_data(pdf_path):
 
     iqama_match = re.search(r"Iqama Number\s+(\d+)", text)
     data["Iqama"] = iqama_match.group(1).strip() if iqama_match else None
+    # Extract Iqama Expiry Date (from Iqama Information section)
+    iqama_info_match = re.search(r"Iqama Information(.*?)(Expiry Date\s+([0-9\-]+))", text, re.DOTALL)
+    if iqama_info_match:
+        data["IqamaExpiry"] = iqama_info_match.group(3).strip()
+    else:
+        data["IqamaExpiry"] = "Not found"
 
     data["BloodType"] = "B+"
     return data
@@ -100,7 +106,8 @@ if muqeem_files and form_file:
             "Text5": end_day,
             "Text6": end_month,
             "Text7": end_year,
-            "Text1": po
+            "Text1": po, "fill_12": f"{data['Iqama']} - {data['IqamaExpiry']}"
+
         }
 
         doc = fitz.open(form_pdf_path)
