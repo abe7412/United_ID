@@ -38,9 +38,11 @@ def extract_muqeem_data(pdf_path):
         text = pdf.pages[0].extract_text()
 
     data = {}
-    name_match = re.search(r"Name\s+(.*?)\s+Translated Name", text)
-    data["Name"] = name_match.group(1).strip() if name_match else "Not found"
-
+    name_match_1 = re.search(r"Translated Name\s+([A-Z\s\-']+)", text)
+    name_match_2 = re.search(r"Name\s+([A-Z\s\-']+)", text)
+    data["Name"] = name_match_1.group(1).strip() if name_match_1 else (
+        name_match_2.group(1).strip() if name_match_2 else "Not found"
+    )
     nationality_match = re.search(r"Nationality\s+([^\n]+)", text)
     data["Nationality"] = nationality_match.group(1).strip() if nationality_match else None
 
